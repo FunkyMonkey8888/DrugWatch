@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug Trafficking Message Classifier</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+        }
+        .container {
+            width: 500px;
+            margin: auto;
+        }
+        .message-form {
+            display: flex;
+            flex-direction: column;
+        }
+        textarea {
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Drug Trafficking Message Classifier</h1>
+        <form id="messageForm" class="message-form">
+            <textarea id="messageInput" rows="4" placeholder="Enter a message..."></textarea>
+            <button type="button" onclick="submitMessage()">Classify</button>
+        </form>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        async function submitMessage() {
+            const message = document.getElementById('messageInput').value;
+            const response = await fetch('/classify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message })
+            });
+            const result = await response.json();
+            const resultDiv = document.getElementById('result');
+
+            if (response.ok) {
+                const isRelated = result.is_related_to_drugs ? "Yes" : "No";
+                resultDiv.innerHTML = `
+                    <p><b>Message:</b> ${result.message}</p>
+                    <p><b>Related to Drugs:</b> ${isRelated}</p>
+                    <p><b>Confidence:</b> ${(result.confidence * 100).toFixed(2)}%</p>
+                `;
+            } else {
+                resultDiv.innerHTML = `<p><b>Error:</b> ${result.error}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
